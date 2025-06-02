@@ -1,0 +1,1 @@
+powershell -executionpolicy bypass .\Endpoint_update.ps1
