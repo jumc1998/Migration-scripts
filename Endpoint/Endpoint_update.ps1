@@ -18,7 +18,6 @@ $loggedUser = (Get-WmiObject -Class Win32_ComputerSystem | Select-Object -Expand
 write-host "$loggedUserSID"
 write-host "$loggedUser"
 
-
 taskkill.exe /IM outlook.exe /F
 
 # ZeroConfigkey Outlook
