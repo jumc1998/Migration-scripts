@@ -47,7 +47,7 @@ The root `README.md` provides an overview, while each subdirectory contains its 
 
 - **User Management Script**
   - Reads user details from a CSV, prepares or applies updates via Microsoft Graph, and can roll back changes.
-  - The accompanying README explains required CSV columns and how to run the script.
+  - The accompanying README explains the optional CSV columns and how the script only updates values you supply.
 
 ## Pointers for learning more
 

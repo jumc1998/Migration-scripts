@@ -28,6 +28,28 @@ function Confirm-Changes {
     return $confirmation -eq 'yes'
 }
 
+# Function to update user properties using a dynamic hashtable
+function Update-UserProperties {
+    param(
+        [string]$UserId,
+        [hashtable]$Properties,
+        [string]$Alias,
+        [string]$PrimaryEmail
+    )
+
+    if ($Properties.Count -gt 0) {
+        Update-MgUser -UserId $UserId @Properties
+    }
+
+    if ($Alias -and $PrimaryEmail) {
+        try {
+            Set-Mailbox -Identity $PrimaryEmail -EmailAddresses @{Add=$Alias}
+        } catch {
+            Log-Message "Error adding alias $Alias to $PrimaryEmail: $_" "ERROR"
+        }
+    }
+}
+
 # Function to rollback changes
 function Rollback-Changes {
     param (
@@ -72,19 +94,41 @@ function Export-UserChanges {
         $currentUser = Get-MgUser -UserId $user.UserPrincipalName
         
         if ($currentUser) {
-            $changes += "Update UPN for $($user.UserPrincipalName) to $($user.NewUserPrincipalName)"
-            $changes += "Update Department for $($user.UserPrincipalName) to $($user.Department)"
-            $changes += "Update JobTitle for $($user.UserPrincipalName) to $($user.JobTitle)"
-            $changes += "Update CompanyName for $($user.UserPrincipalName) to $($user.CompanyName)"
-            $changes += "Add alias '$($user.Alias)' to '$($user.PrimaryEmail)'"
-
-            $plannedChangesData += [PSCustomObject]@{
+            $obj = [PSCustomObject]@{
                 ObjectId = $currentUser.Id
                 OriginalUserPrincipalName = $currentUser.UserPrincipalName
-                NewUserPrincipalName = $user.NewUserPrincipalName
-                CompanyName = $user.CompanyName
-                Alias = $user.Alias
-                PrimaryEmail = $user.PrimaryEmail
+            }
+            $planned = $false
+
+            if ($user.NewUserPrincipalName) {
+                $changes += "Update UPN for $($user.UserPrincipalName) to $($user.NewUserPrincipalName)"
+                $obj | Add-Member -NotePropertyName NewUserPrincipalName -NotePropertyValue $user.NewUserPrincipalName
+                $planned = $true
+            }
+            if ($user.Department) {
+                $changes += "Update Department for $($user.UserPrincipalName) to $($user.Department)"
+                $obj | Add-Member -NotePropertyName Department -NotePropertyValue $user.Department
+                $planned = $true
+            }
+            if ($user.JobTitle) {
+                $changes += "Update JobTitle for $($user.UserPrincipalName) to $($user.JobTitle)"
+                $obj | Add-Member -NotePropertyName JobTitle -NotePropertyValue $user.JobTitle
+                $planned = $true
+            }
+            if ($user.CompanyName) {
+                $changes += "Update CompanyName for $($user.UserPrincipalName) to $($user.CompanyName)"
+                $obj | Add-Member -NotePropertyName CompanyName -NotePropertyValue $user.CompanyName
+                $planned = $true
+            }
+            if ($user.Alias -and $user.PrimaryEmail) {
+                $changes += "Add alias '$($user.Alias)' to '$($user.PrimaryEmail)'"
+                $obj | Add-Member -NotePropertyName Alias -NotePropertyValue $user.Alias
+                $obj | Add-Member -NotePropertyName PrimaryEmail -NotePropertyValue $user.PrimaryEmail
+                $planned = $true
+            }
+
+            if ($planned) {
+                $plannedChangesData += $obj
             }
         } else {
             Log-Message "User $($user.UserPrincipalName) not found" "ERROR"
@@ -125,15 +169,22 @@ function Apply-UserChanges {
                     ObjectId = $currentUser.Id
                     OriginalUserPrincipalName = $currentUser.UserPrincipalName
                     OriginalCompanyName = $currentUser.CompanyName
+                    OriginalDepartment = $currentUser.Department
+                    OriginalJobTitle = $currentUser.JobTitle
                     Alias = $user.Alias
                     PrimaryEmail = $user.PrimaryEmail
                 }
 
-                # Update the user's UPN
-                Update-MgUser -UserId $currentUser.Id -UserPrincipalName $user.NewUserPrincipalName -CompanyName $user.CompanyName
-                Log-Message "Updated UPN for $($user.OriginalUserPrincipalName) to $($user.NewUserPrincipalName)"
+                $properties = @{}
+                if ($user.NewUserPrincipalName) { $properties.UserPrincipalName = $user.NewUserPrincipalName }
+                if ($user.Department) { $properties.Department = $user.Department }
+                if ($user.JobTitle) { $properties.JobTitle = $user.JobTitle }
+                if ($user.CompanyName) { $properties.CompanyName = $user.CompanyName }
+
+                Update-UserProperties -UserId $currentUser.Id -Properties $properties -Alias $user.Alias -PrimaryEmail $user.PrimaryEmail
+                Log-Message "Updated properties for $($user.OriginalUserPrincipalName)"
             } catch {
-                Log-Message "Error updating UPN for $($user.OriginalUserPrincipalName): $_" "ERROR"
+                Log-Message "Error updating $($user.OriginalUserPrincipalName): $_" "ERROR"
             }
         } else {
             Log-Message "User $($user.OriginalUserPrincipalName) not found" "ERROR"

@@ -14,23 +14,23 @@ This PowerShell script allows you to update user accounts in Microsoft 365 using
 
 ## CSV File Format
 
-The CSV file used for this script should have the following columns:
+The CSV file can contain any of the following columns. Only the values you supply will be applied:
 
 ```plaintext
 UserPrincipalName,NewUserPrincipalName,Department,JobTitle,CompanyName,PrimaryEmail,Alias
 ```
 
-Here is an example of how the CSV file might look:
+Example rows:
 
 ```csv
-UserPrincipalName,NewUserPrincipalName,Department,JobTitle,CompanyName,PrimaryEmail,Alias
-john.doe@oldcompany.com,john.doe@newcompany.com,Sales,Sales Manager,NewCompany,john.doe@newcompany.com,john.d.alias@newcompany.com
-jane.smith@oldcompany.com,jane.smith@newcompany.com,HR,HR Director,NewCompany,jane.smith@newcompany.com,jane.s.alias@newcompany.com
+UserPrincipalName,NewUserPrincipalName,Department,CompanyName
+john.doe@oldcompany.com,john.doe@newcompany.com,Sales,NewCompany
+jane.smith@oldcompany.com,,,NewCompany
 ```
 
 ## How to Use
 
-1. **Prepare the CSV File**: Ensure your CSV file follows the format mentioned above.
+1. **Prepare the CSV File**: The CSV may contain any subset of the supported columns. Only supplied values are updated.
 
 2. **Run the Script**: Execute the script in PowerShell. You will be presented with a menu to select from:
 
@@ -42,6 +42,8 @@ jane.smith@oldcompany.com,jane.smith@newcompany.com,HR,HR Director,NewCompany,ja
 3. **Log File**: The script will log all activities to `ScriptLog.txt`.
 
 4. **Rollback File**: The script will generate a rollback data file when applying changes, which can be used to undo changes if needed.
+
+5. **Alias Updates**: If the CSV includes an `Alias` and `PrimaryEmail`, the script will attempt to add the alias using `Set-Mailbox`.
 
 ## Example
 
