@@ -23,7 +23,17 @@ $msgBody = "Your user credentials are being updated. Your Outlook and OneDrive w
 $msgTitle = "Europameister change"
 $msgButton = 'OK'
 $msgImage = 'Information'
-[System.Windows.MessageBox]::Show($msgBody,$msgTitle,$msgButton,$msgImage)
+
+# Display the message to the currently logged on user through a temporary scheduled task
+$taskName = "EuropameisterMsg1"
+$cmd = "Add-Type -AssemblyName PresentationCore,PresentationFramework; [System.Windows.MessageBox]::Show('$msgBody','$msgTitle','$msgButton','$msgImage')"
+$action = New-ScheduledTaskAction -Execute 'PowerShell.exe' -Argument "-NoProfile -WindowStyle Hidden -Command \"$cmd\""
+$principal = New-ScheduledTaskPrincipal -UserId $loggedUser -LogonType Interactive -RunLevel Highest
+$task = New-ScheduledTask -Action $action -Principal $principal
+Register-ScheduledTask -TaskName $taskName -InputObject $task -Force | Out-Null
+Start-ScheduledTask -TaskName $taskName
+Start-Sleep -Seconds 5
+Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
 
 taskkill.exe /IM outlook.exe /F
 
@@ -82,6 +92,16 @@ $msgBody = "Your user credentials have been updated. You're PC will shutdown now
 $msgTitle = "Europameister change"
 $msgButton = 'OK'
 $msgImage = 'Information'
-[System.Windows.MessageBox]::Show($msgBody,$msgTitle,$msgButton,$msgImage)
+
+# Display the final message in the user's session
+$taskName = "EuropameisterMsg2"
+$cmd = "Add-Type -AssemblyName PresentationCore,PresentationFramework; [System.Windows.MessageBox]::Show('$msgBody','$msgTitle','$msgButton','$msgImage')"
+$action = New-ScheduledTaskAction -Execute 'PowerShell.exe' -Argument "-NoProfile -WindowStyle Hidden -Command \"$cmd\""
+$principal = New-ScheduledTaskPrincipal -UserId $loggedUser -LogonType Interactive -RunLevel Highest
+$task = New-ScheduledTask -Action $action -Principal $principal
+Register-ScheduledTask -TaskName $taskName -InputObject $task -Force | Out-Null
+Start-ScheduledTask -TaskName $taskName
+Start-Sleep -Seconds 5
+Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
 
 shutdown /s
