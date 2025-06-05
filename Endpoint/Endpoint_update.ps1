@@ -18,12 +18,6 @@ $loggedUser = (Get-WmiObject -Class Win32_ComputerSystem | Select-Object -Expand
 write-host "$loggedUserSID"
 write-host "$loggedUser"
 
-Add-Type -AssemblyName PresentationCore,PresentationFramework
-$msgBody = "Your user credentials are being updated. Your Outlook and OneDrive will be unavailable. In a few minutes, you will receive a notification that the migration is finished and that your machine will shutdown. Please power-on your device and sign in again with your new @panelclaw.eu credentials after this."
-$msgTitle = "Europameister change"
-$msgButton = 'OK'
-$msgImage = 'Information'
-[System.Windows.MessageBox]::Show($msgBody,$msgTitle,$msgButton,$msgImage)
 
 taskkill.exe /IM outlook.exe /F
 
@@ -77,11 +71,5 @@ taskkill.exe /IM onedrive.exe /F
 
 Stop-Transcript
 
-Add-Type -AssemblyName PresentationCore,PresentationFramework
-$msgBody = "Your user credentials have been updated. You're PC will shutdown now. Please sign in again with your new @panelclaw.eu credentials."
-$msgTitle = "Europameister change"
-$msgButton = 'OK'
-$msgImage = 'Information'
-[System.Windows.MessageBox]::Show($msgBody,$msgTitle,$msgButton,$msgImage)
-
-shutdown /s
+# Give users a grace period before shutting down so they can close applications
+shutdown /s /t 300 /c "Device will restart in 5 minutes to finalize credential updates. Please save your work." /f
