@@ -14,7 +14,8 @@ Migration-scripts/
 │   ├─ Endpoint_update.ps1
 │   └─ Execute.cmd
 ├─ Mailgroups and Shared Mailboxes/
-│   └─ README.md
+│   ├─ README.md
+│   └─ Update-MailObjects.ps1
 ├─ Update Sharepoint Script/
 │   └─ Update-Sharepoint.ps1
 ├─ Update Teams Script/
@@ -44,6 +45,10 @@ The root `README.md` provides an overview, while each subdirectory contains its 
 
 - **Update Teams Script**
   - Connects to Microsoft Teams, exports planned team name/description changes, and can later apply those changes from a CSV file.
+
+- **Mailgroups and Shared Mailboxes**
+  - Updates distribution groups and shared mailboxes using Exchange Online.
+  - Offers export, apply, and rollback options similar to the user management script.
 
 - **User Management Script**
   - Reads user details from a CSV, prepares or applies updates via Microsoft Graph, and can roll back changes.
