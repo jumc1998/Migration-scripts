@@ -1,2 +1,2 @@
-UserPrincipalName,NewUserPrincipalName,CompanyName,PrimaryEmail,Alias
-john.doe@oldcompany.com,john.doe@newcompany.com,NewCompany,john.doe@newcompany.com,john.doe@oldcompany.com
+UserPrincipalName,NewUserPrincipalName,Department,JobTitle,CompanyName,PrimaryEmail,Alias
+john.doe@oldcompany.com,john.doe@newcompany.com,Sales,Sales Manager,NewCompany,j.doe@newcompany.com,john.doe@oldcompany.com
