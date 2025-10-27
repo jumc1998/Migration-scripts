@@ -22,7 +22,39 @@ gap when a tenant-to-tenant migration tool does not offer delta synchronisation.
 - **Input Validation**: Validates tenant IDs, client IDs, and domains to prevent configuration errors.
 - **Error Handling**: Comprehensive error handling with detailed error messages and error counts in the summary.
 
-## Prerequisites
+## Quick Start (Automated Setup)
+
+**NEW!** We now provide automated setup scripts that handle app registration, permissions, and configuration for you.
+
+### Step 1: Install Prerequisites
+```powershell
+Install-Module Microsoft.Graph -Scope CurrentUser
+```
+
+### Step 2: Run Automated Setup
+```powershell
+.\Setup-EntraSyncApp.ps1 -SetupMode MultiTenant
+```
+
+This will:
+- Create the app registration automatically
+- Configure required Microsoft Graph permissions
+- Generate admin consent URLs
+- Save the configuration securely
+
+### Step 3: Run the Sync
+```powershell
+.\Invoke-EntraDeltaSync.ps1 `
+    -SourceUserDomain "sourcetenant.com" `
+    -DestinationUserDomain "destinationtenant.com" `
+    -LogFilePath "./sync.log"
+```
+
+**For detailed setup instructions, see [SETUP-GUIDE.md](./SETUP-GUIDE.md)**
+
+## Prerequisites (Manual Setup)
+
+If you prefer manual setup or need to understand what the automation does:
 
 1. Register a multi-tenant application in Microsoft Entra ID that has the following
    Microsoft Graph **application** permissions (or broader as required by your
@@ -34,7 +66,7 @@ gap when a tenant-to-tenant migration tool does not offer delta synchronisation.
    as the application **Client ID** and **Client Secret**.
 4. Run the script with PowerShell 7+ (`pwsh`) or Windows PowerShell 5.1.
 
-## Usage
+## Usage (Manual Mode)
 
 The script is located at `entra_id_delta_sync.ps1`. It accepts tenant details, the
 application ID, and the source/destination user domains as parameters. If the client
@@ -160,6 +192,49 @@ pwsh .\entra_id_delta_sync.ps1 `
 - Review Graph API permissions regularly and apply principle of least privilege
 - Enable audit logging in both tenants to track all changes
 - Consider using Conditional Access policies to restrict where the script can be run from
+
+## Automation Scripts
+
+This tool now includes automation scripts to simplify setup and execution:
+
+### Setup-EntraSyncApp.ps1
+Automates app registration creation and configuration. Supports both multi-tenant and separate app modes.
+
+```powershell
+.\Setup-EntraSyncApp.ps1 -SetupMode MultiTenant -EncryptConfig
+```
+
+### Invoke-EntraDeltaSync.ps1
+Wrapper script that runs the sync using saved configuration.
+
+```powershell
+.\Invoke-EntraDeltaSync.ps1 `
+    -SourceUserDomain "source.com" `
+    -DestinationUserDomain "dest.com" `
+    -LogFilePath "./logs/sync.log"
+```
+
+### Get-EntraSyncConfig.ps1
+View and manage saved configurations, check secret expiration.
+
+```powershell
+.\Get-EntraSyncConfig.ps1
+.\Get-EntraSyncConfig.ps1 -CheckExpiration
+```
+
+**Full documentation:** [SETUP-GUIDE.md](./SETUP-GUIDE.md)
+
+## File Structure
+
+```
+Entra Delta Sync Script/
+├── entra_id_delta_sync.ps1      # Core sync script
+├── Setup-EntraSyncApp.ps1        # Automated app registration setup
+├── Invoke-EntraDeltaSync.ps1     # Sync execution wrapper
+├── Get-EntraSyncConfig.ps1       # Configuration management
+├── README.md                      # This file
+└── SETUP-GUIDE.md                 # Detailed setup instructions
+```
 
 ## Support and Feedback
 
