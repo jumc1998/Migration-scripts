@@ -1,0 +1,33 @@
+# Entra Delta Sync - Sensitive Files
+
+# Configuration files (contain secrets)
+*-config.json
+entra-sync-config.json
+config.json
+*.config.json
+
+# Checkpoint files
+*checkpoint*.json
+*.checkpoint
+
+# Log files
+*.log
+logs/
+*.txt
+
+# Exported CSV files with user data
+flagged-users*.csv
+*-export.csv
+
+# Windows encrypted data
+*.dat
+*.enc
+
+# Backup files
+*.bak
+*.backup
+
+# Temporary files
+temp/
+tmp/
+*.tmp
